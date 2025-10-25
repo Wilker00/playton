@@ -1,0 +1,25 @@
+stages:
+  ingest:
+    cmd: python -m rl.data ingest --symbols SPY QQQ BTCUSD ETHUSD --tf 1h --years 3
+    outs:
+      - data/raw
+  clean:
+    cmd: python -m rl.data clean
+    deps:
+      - data/raw
+    outs:
+      - data/clean/combined.parquet
+  feature:
+    cmd: python -m rl.data feature
+    deps:
+      - data/clean/combined.parquet
+    outs:
+      - data/feature/features.parquet
+  freeze:
+    cmd: python -m rl.data freeze --test-months 12
+    deps:
+      - data/feature/features.parquet
+    outs:
+      - data/frozen/train.parquet
+      - data/frozen/test.parquet
+      - data/frozen/dataset.parquet
